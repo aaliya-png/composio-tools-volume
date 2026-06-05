@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Composio Tool Usage</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #f7f6f2;
+    --surface: #ffffff;
+    --border: #e4e2da;
+    --text: #1a1916;
+    --muted: #7a7870;
+    --accent: #1a1916;
+    --pill-active-bg: #1a1916;
+    --pill-active-text: #f7f6f2;
+    --bar-bg: #ede9e0;
+    --font-sans: 'DM Sans', sans-serif;
+    --font-mono: 'DM Mono', monospace;
+  }
+  body { background: var(--bg); color: var(--text); font-family: var(--font-sans); font-size: 14px; line-height: 1.5; min-height: 100vh; }
+  
+  header { padding: 2.5rem 2.5rem 1.5rem; border-bottom: 1px solid var(--border); background: var(--surface); }
+  .header-top { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 1.25rem; }
+  h1 { font-size: 20px; font-weight: 500; letter-spacing: -0.02em; }
+  .subtitle { font-size: 12px; color: var(--muted); font-family: var(--font-mono); }
+  
+  .controls { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+  .pill-group { display: flex; gap: 4px; background: var(--bar-bg); border-radius: 8px; padding: 3px; }
+  .pill { font-size: 12px; font-weight: 400; padding: 5px 12px; border-radius: 6px; border: none; background: transparent; color: var(--muted); cursor: pointer; font-family: var(--font-sans); letter-spacing: 0; transition: all 0.15s; }
+  .pill:hover { color: var(--text); }
+  .pill.active { background: var(--surface); color: var(--text); font-weight: 500; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+  
+  .divider { width: 1px; height: 20px; background: var(--border); }
+  
+  .toggle-wrap { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--muted); cursor: pointer; }
+  .sw { position: relative; width: 28px; height: 16px; flex-shrink: 0; }
+  .sw input { opacity: 0; width: 0; height: 0; position: absolute; }
+  .sw-track { position: absolute; inset: 0; border-radius: 8px; background: var(--border); transition: background 0.2s; }
+  .sw input:checked + .sw-track { background: var(--text); }
+  .sw-thumb { position: absolute; top: 2px; left: 2px; width: 12px; height: 12px; border-radius: 50%; background: white; transition: left 0.2s; pointer-events: none; }
+  .sw input:checked ~ .sw-thumb { left: 14px; }
+
+  .metric-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--border); border-top: 1px solid var(--border); }
+  .metric { background: var(--surface); padding: 1.25rem 2rem; }
+  .metric-label { font-size: 11px; color: var(--muted); font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px; }
+  .metric-val { font-size: 24px; font-weight: 300; letter-spacing: -0.03em; }
+
+  main { display: grid; grid-template-columns: 1fr; }
+
+  .view-bar { padding: 1rem 2.5rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 1rem; background: var(--surface); }
+  .view-label { font-size: 11px; color: var(--muted); font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.08em; }
+  .view-tabs { display: flex; gap: 4px; }
+  .vtab { font-size: 12px; padding: 4px 10px; border-radius: 5px; border: 1px solid transparent; background: transparent; color: var(--muted); cursor: pointer; font-family: var(--font-sans); transition: all 0.15s; }
+  .vtab:hover { color: var(--text); }
+  .vtab.active { border-color: var(--border); background: var(--bar-bg); color: var(--text); font-weight: 500; }
+
+  #chart-area { padding: 1.5rem 2.5rem 2rem; }
+
+  .toolkit-block { margin-bottom: 4px; }
+  .toolkit-row { display: flex; align-items: center; gap: 10px; padding: 6px 10px; border-radius: 6px; cursor: pointer; transition: background 0.1s; }
+  .toolkit-row:hover { background: var(--bar-bg); }
+  .toolkit-row.expanded { background: var(--bar-bg); border-radius: 6px 6px 0 0; }
+  .expand-arrow { font-size: 10px; color: var(--muted); width: 14px; flex-shrink: 0; transition: transform 0.2s; }
+  .expand-arrow.open { transform: rotate(90deg); }
+  .tk-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .tk-name { font-weight: 500; font-size: 13px; min-width: 160px; flex-shrink: 0; }
+  .bar-wrap { flex: 1; height: 14px; background: var(--bar-bg); border-radius: 2px; overflow: hidden; }
+  .toolkit-row:hover .bar-wrap, .toolkit-row.expanded .bar-wrap { background: var(--border); }
+  .bar-fill { height: 100%; border-radius: 2px; transition: width 0.35s cubic-bezier(0.4,0,0.2,1); }
+  .bar-num { font-family: var(--font-mono); font-size: 11px; color: var(--muted); width: 70px; text-align: right; flex-shrink: 0; }
+  .bar-projects { font-family: var(--font-mono); font-size: 11px; color: var(--muted); width: 90px; text-align: right; flex-shrink: 0; }
+  
+  .tool-rows { background: var(--bar-bg); border-radius: 0 0 6px 6px; padding: 4px 0 6px; margin-bottom: 0; display: none; }
+  .tool-rows.open { display: block; }
+  .tool-row { display: flex; align-items: center; gap: 10px; padding: 4px 10px 4px 34px; }
+  .tool-name { font-family: var(--font-mono); font-size: 11px; color: var(--muted); min-width: 160px; flex-shrink: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .tool-bar-wrap { flex: 1; height: 8px; background: var(--border); border-radius: 1px; overflow: hidden; }
+  .tool-bar-fill { height: 100%; border-radius: 1px; opacity: 0.6; transition: width 0.3s; }
+  .tool-bar-num { font-family: var(--font-mono); font-size: 10px; color: var(--muted); width: 70px; text-align: right; flex-shrink: 0; }
+  .tool-bar-projects { font-family: var(--font-mono); font-size: 10px; color: var(--muted); width: 90px; text-align: right; flex-shrink: 0; }
+
+  .orch-badge { font-size: 9px; font-family: var(--font-mono); background: #ede9e0; color: #7a7870; padding: 1px 5px; border-radius: 3px; margin-left: 4px; flex-shrink: 0; }
+
+  .col-headers { display: flex; align-items: center; gap: 10px; padding: 0 10px 8px; margin-bottom: 4px; border-bottom: 1px solid var(--border); }
+  .ch-name { font-size: 10px; font-family: var(--font-mono); color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; min-width: 160px; padding-left: 24px; flex-shrink: 0; }
+  .ch-bar { flex: 1; }
+  .ch-calls { font-size: 10px; font-family: var(--font-mono); color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; width: 70px; text-align: right; flex-shrink: 0; }
+  .ch-projects { font-size: 10px; font-family: var(--font-mono); color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; width: 90px; text-align: right; flex-shrink: 0; }
+
+  .flat-mode .expand-arrow { opacity: 0; pointer-events: none; }
+  .flat-mode .tk-dot { display: none; }
+  .flat-mode .tk-name { min-width: 0; font-family: var(--font-mono); font-size: 11px; font-weight: 400; }
+
+  footer { padding: 1.5rem 2.5rem; border-top: 1px solid var(--border); font-size: 11px; color: var(--muted); font-family: var(--font-mono); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-top">
+    <h1>Composio — tool usage</h1>
+    <span class="subtitle">180-day window · all customers</span>
+  </div>
+  <div class="controls">
+    <div class="pill-group" id="plan-pills">
+      <button class="pill active" onclick="setPlan('ALL',this)">All</button>
+      <button class="pill" onclick="setPlan('ENTERPRISE',this)">Enterprise</button>
+      <button class="pill" onclick="setPlan('GROWTH',this)">Growth</button>
+      <button class="pill" onclick="setPlan('STARTER',this)">Starter</button>
+      <button class="pill" onclick="setPlan('HOBBY',this)">Hobby</button>
+    </div>
+    <div class="divider"></div>
+    <label class="toggle-wrap">
+      <span class="sw"><input type="checkbox" id="hide-orch" onchange="render()"><span class="sw-track"></span><span class="sw-thumb"></span></span>
+      Hide orchestration tools
+    </label>
+    <div class="divider"></div>
+    <label class="toggle-wrap">
+      <span class="sw"><input type="checkbox" id="flat-view" onchange="render()"><span class="sw-track"></span><span class="sw-thumb"></span></span>
+      Show all tools (flat)
+    </label>
+  </div>
+</header>
+
+<div class="metric-row">
+  <div class="metric"><div class="metric-label">Total calls</div><div class="metric-val" id="m-total">—</div></div>
+  <div class="metric"><div class="metric-label">Toolkits</div><div class="metric-val" id="m-toolkits">—</div></div>
+  <div class="metric"><div class="metric-label">Widest reach</div><div class="metric-val" id="m-wide" style="font-size:14px;padding-top:6px;">—</div></div>
+  <div class="metric"><div class="metric-label">Most called</div><div class="metric-val" id="m-top" style="font-size:14px;padding-top:6px;">—</div></div>
+</div>
+
+<div class="view-bar">
+  <span class="view-label">Sort by</span>
+  <div class="view-tabs">
+    <button class="vtab active" onclick="setView('volume',this)">Call volume</button>
+    <button class="vtab" onclick="setView('breadth',this)">Customer breadth</button>
+  </div>
+</div>
+
+<div id="chart-area"></div>
+
+<footer>Composio internal · tool_execution_logs · 180-day window</footer>
+
+<script>
+const PLAN_DATA = {"ALL": [{"toolkit": "gmail", "tool": "GMAIL_FETCH_EMAILS", "total_calls": 74974210, "num_projects_using": 17519}, {"toolkit": "googlecalendar", "tool": "GOOGLECALENDAR_EVENTS_LIST", "total_calls": 46439285, "num_projects_using": 6088}, {"toolkit": "gmail", "tool": "GMAIL_FETCH_MESSAGE_BY_MESSAGE_ID", "total_calls": 36757540, "num_projects_using": 6763}, {"toolkit": "gmail", "tool": "GMAIL_FETCH_MESSAGE_BY_THREAD_ID", "total_calls": 36037561, "num_projects_using": 3280}, {"toolkit": "composio", "tool": "COMPOSIO_MULTI_EXECUTE_TOOL", "total_calls": 35437747, "num_projects_using": 39335}, {"toolkit": "slack", "tool": "SLACK_FETCH_CONVERSATION_HISTORY", "total_calls": 18069775, "num_projects_using": 2004}, {"toolkit": "slack", "tool": "SLACK_LIST_ALL_CHANNELS", "total_calls": 16901213, "num_projects_using": 1609}, {"toolkit": "googlesuper", "tool": "GOOGLESUPER_LIST_LABELS", "total_calls": 16552643, "num_projects_using": 48}, {"toolkit": "googlesuper", "tool": "GOOGLESUPER_CREATE_LABEL", "total_calls": 16265202, "num_projects_using": 15}, {"toolkit": "googlesuper", "tool": "GOOGLESUPER_BATCH_MODIFY_MESSAGES", "total_calls": 16247294, "num_projects_using": 12}, {"toolkit": "instagram", "tool": "INSTAGRAM_LIST_ALL_MESSAGES", "total_calls": 13473445, "num_projects_using": 679}, {"toolkit": "gmail", "tool": "GMAIL_PROXY_EXECUTE", "total_calls": 13467204, "num_projects_using": 1057}, {"toolkit": "composio", "tool": "COMPOSIO_SEARCH_TOOLS", "total_calls": 11583271, "num_projects_using": 52544}, {"toolkit": "tavily", "tool": "TAVILY_SEARCH", "total_calls": 10552756, "num_projects_using": 312}, {"toolkit": "microsoft_teams", "tool": "MICROSOFT_TEAMS_CHATS_GET_ALL_MESSAGES", "total_calls": 7721909, "num_projects_using": 98}, {"toolkit": "googlecalendar", "tool": "GOOGLECALENDAR_CREATE_EVENT", "total_calls": 7005528, "num_projects_using": 5804}, {"toolkit": "airtable", "tool": "AIRTABLE_LIST_RECORDS", "total_calls": 6754302, "num_projects_using": 515}, {"toolkit": "googledrive", "tool": "GOOGLEDRIVE_LIST_FILES", "total_calls": 6689893, "num_projects_using": 1909}, {"toolkit": "outlook", "tool": "OUTLOOK_QUERY_EMAILS", "total_calls": 6686772, "num_projects_using": 3619}, {"toolkit": "composio", "tool": "COMPOSIO_GET_RECIPE_DETAILS", "total_calls": 6532509, "num_projects_using": 3383}, {"toolkit": "composio", "tool": "COMPOSIO_REMOTE_WORKBENCH", "total_calls": 6435270, "num_projects_using": 24185}, {"toolkit": "reddit", "tool": "REDDIT_RETRIEVE_SPECIFIC_COMMENT", "total_calls": 6334238, "num_projects_using": 269}, {"toolkit": "slackbot", "tool": "SLACKBOT_FETCH_CONVERSATION_HISTORY", "total_calls": 6318261, "num_projects_using": 146}, {"toolkit": "gmail", "tool": "GMAIL_GET_PROFILE", "total_calls": 5893737, "num_projects_using": 5468}, {"toolkit": "microsoft_teams", "tool": "MICROSOFT_TEAMS_LIST_MESSAGE_REPLIES", "total_calls": 5709309, "num_projects_using": 44}, {"toolkit": "twitter", "tool": "TWITTER_RECENT_SEARCH", "total_calls": 5396277, "num_projects_using": 790}, {"toolkit": "microsoft_teams", "tool": "MICROSOFT_TEAMS_LIST_USER_CHAT_MESSAGES", "total_calls": 5028390, "num_projects_using": 201}, {"toolkit": "gmail", "tool": "GMAIL_GET_PEOPLE", "total_calls": 4863507, "num_projects_using": 255}, {"toolkit": "googlecalendar", "tool": "GOOGLECALENDAR_FIND_EVENT", "total_calls": 4855696, "num_projects_using": 3259}, {"toolkit": "outlook", "tool": "OUTLOOK_OUTLOOK_LIST_MESSAGES", "total_calls": 4337149, "num_projects_using": 375}, {"toolkit": "gmail", "tool": "GMAIL_LIST_THREADS", "total_calls": 4302689, "num_projects_using": 2721}, {"toolkit": "googlesuper", "tool": "GOOGLESUPER_FETCH_EMAILS", "total_calls": 4221971, "num_projects_using": 215}, {"toolkit": "outlook", "tool": "OUTLOOK_OUTLOOK_GET_EVENT", "total_calls": 4173798, "num_projects_using": 31}, {"toolkit": "hubspot", "tool": "HUBSPOT_READ_CRM_OBJECT_BY_ID", "total_calls": 3918088, "num_projects_using": 181}, {"toolkit": "gmail", "tool": "GMAIL_GET_ATTACHMENT", "total_calls": 3728284, "num_projects_using": 2683}, {"toolkit": "googlesheets", "tool": "GOOGLESHEETS_BATCH_GET", "total_calls": 3699333, "num_projects_using": 5298}, {"toolkit": "googledrive", "tool": "GOOGLEDRIVE_DOWNLOAD_FILE", "total_calls": 3536208, "num_projects_using": 4083}, {"toolkit": "googlecalendar", "tool": "GOOGLECALENDAR_FIND_FREE_SLOTS", "total_calls": 3494786, "num_projects_using": 1273}, {"toolkit": "googledrive", "tool": "GOOGLEDRIVE_FIND_FILE", "total_calls": 3452600, "num_projects_using": 6502}, {"toolkit": "instagram", "tool": "INSTAGRAM_GET_POST_INSIGHTS", "total_calls": 3365980, "num_projects_using": 192}, {"toolkit": "outlook", "tool": "OUTLOOK_LIST_MESSAGES", "total_calls": 3334761, "num_projects_using": 1322}, {"toolkit": "clickup", "tool": "CLICKUP_GET_TASK_COMMENTS", "total_calls": 3134658, "num_projects_using": 134}, {"toolkit": "gmail", "tool": "GMAIL_REPLY_TO_THREAD", "total_calls": 2890893, "num_projects_using": 1819}, {"toolkit": "instagram", "tool": "INSTAGRAM_GET_POST_COMMENTS", "total_calls": 2797927, "num_projects_using": 99}, {"toolkit": "one_drive", "tool": "ONE_DRIVE_LIST_FOLDER_CHILDREN", "total_calls": 2678422, "num_projects_using": 487}, {"toolkit": "pipedrive", "tool": "PIPEDRIVE_LIST_PARTICIPANTS_OF_A_DEAL", "total_calls": 2633893, "num_projects_using": 4}, {"toolkit": "outlook", "tool": "OUTLOOK_OUTLOOK_GET_MESSAGE", "total_calls": 2621170, "num_projects_using": 156}, {"toolkit": "outlook", "tool": "OUTLOOK_GET_MESSAGE", "total_calls": 2543299, "num_projects_using": 1969}, {"toolkit": "outlook", "tool": "OUTLOOK_OUTLOOK_LIST_EVENTS", "total_calls": 2514410, "num_projects_using": 171}, {"toolkit": "gmail", "tool": "GMAIL_LIST_LABELS", "total_calls": 2499926, "num_projects_using": 3157}], "ENTERPRISE": [{"toolkit": "composio", "tool": "COMPOSIO_GET_RECIPE_DETAILS", "total_calls": 6532468, "num_projects_using": 3383}, {"toolkit": "gmail", "tool": "GMAIL_FETCH_MESSAGE_BY_MESSAGE_ID", "total_calls": 3569531, "num_projects_using": 1066}, {"toolkit": "composio", "tool": "COMPOSIO_MULTI_EXECUTE_TOOL", "total_calls": 2903488, "num_projects_using": 13029}, {"toolkit": "instagram", "tool": "INSTAGRAM_LIST_ALL_MESSAGES", "total_calls": 1751458, "num_projects_using": 283}, {"toolkit": "composio", "tool": "COMPOSIO_EXECUTE_RECIPE", "total_calls": 1507778, "num_projects_using": 2944}, {"toolkit": "composio_search", "tool": "COMPOSIO_SEARCH_VERCEL_AI_CHAT", "total_calls": 1343870, "num_projects_using": 2275}, {"toolkit": "composio", "tool": "COMPOSIO_REMOTE_WORKBENCH", "total_calls": 1177053, "num_projects_using": 9103}, {"toolkit": "gmail", "tool": "GMAIL_FETCH_EMAILS", "total_calls": 1097232, "num_projects_using": 3782}, {"toolkit": "slack", "tool": "SLACK_FETCH_CONVERSATION_HISTORY", "total_calls": 953520, "num_projects_using": 573}, {"toolkit": "composio", "tool": "COMPOSIO_SEARCH_TOOLS", "total_calls": 890832, "num_projects_using": 18768}, {"toolkit": "close", "tool": "CLOSE_CREATE_LEAD", "total_calls": 774180, "num_projects_using": 3}, {"toolkit": "googledrive", "tool": "GOOGLEDRIVE_FIND_FILE", "total_calls": 537912, "num_projects_using": 1396}, {"toolkit": "googledrive", "tool": "GOOGLEDRIVE_MOVE_FILE", "total_calls": 530520, "num_projects_using": 439}, {"toolkit": "composio_search", "tool": "COMPOSIO_SEARCH_WEB", "total_calls": 490104, "num_projects_using": 3181}, {"toolkit": "outlook", "tool": "OUTLOOK_MOVE_MESSAGE", "total_calls": 484754, "num_projects_using": 72}, {"toolkit": "composio_search", "tool": "COMPOSIO_SEARCH_GROQ_CHAT", "total_calls": 426736, "num_projects_using": 2630}, {"toolkit": "supabase", "tool": "SUPABASE_BETA_RUN_SQL_QUERY", "total_calls": 425052, "num_projects_using": 326}, {"toolkit": "instagram", "tool": "INSTAGRAM_SEND_TEXT_MESSAGE", "total_calls": 368564, "num_projects_using": 224}, {"toolkit": "googlesheets", "tool": "GOOGLESHEETS_BATCH_UPDATE", "total_calls": 367223, "num_projects_using": 1674}, {"toolkit": "googlesheets", "tool": "GOOGLESHEETS_BATCH_GET", "total_calls": 311074, "num_projects_using": 1338}, {"toolkit": "browser_tool", "tool": "BROWSER_TOOL_WATCH_TASK", "total_calls": 308050, "num_projects_using": 769}, {"toolkit": "zoho", "tool": "ZOHO_CREATE_ZOHO_RECORD", "total_calls": 286656, "num_projects_using": 8}, {"toolkit": "composio_search", "tool": "COMPOSIO_SEARCH_EXA_ANSWER", "total_calls": 274245, "num_projects_using": 983}, {"toolkit": "slack", "tool": "SLACK_SEARCH_MESSAGES", "total_calls": 252198, "num_projects_using": 626}, {"toolkit": "instagram", "tool": "INSTAGRAM_LIST_ALL_CONVERSATIONS", "total_calls": 244861, "num_projects_using": 329}, {"toolkit": "salesforce", "tool": "SALESFORCE_UPDATE_CONTACT", "total_calls": 228750, "num_projects_using": 8}, {"toolkit": "composio", "tool": "COMPOSIO_REMOTE_BASH_TOOL", "total_calls": 225617, "num_projects_using": 4287}, {"toolkit": "gmail", "tool": "GMAIL_SEND_EMAIL", "total_calls": 216503, "num_projects_using": 2184}, {"toolkit": "gmail", "tool": "GMAIL_MOVE_TO_TRASH", "total_calls": 215688, "num_projects_using": 74}, {"toolkit": "telegram", "tool": "TELEGRAM_SEND_MESSAGE", "total_calls": 212500, "num_projects_using": 224}, {"toolkit": "googledrive", "tool": "GOOGLEDRIVE_DOWNLOAD_FILE", "total_calls": 210706, "num_projects_using": 966}, {"toolkit": "exa", "tool": "EXA_SEARCH", "total_calls": 207362, "num_projects_using": 99}, {"toolkit": "gmail", "tool": "GMAIL_BATCH_MODIFY_MESSAGES", "total_calls": 206913, "num_projects_using": 824}, {"toolkit": "notion", "tool": "NOTION_INSERT_ROW_DATABASE", "total_calls": 205792, "num_projects_using": 462}, {"toolkit": "twitter", "tool": "TWITTER_RECENT_SEARCH", "total_calls": 190933, "num_projects_using": 446}, {"toolkit": "outlook", "tool": "OUTLOOK_QUERY_EMAILS", "total_calls": 188885, "num_projects_using": 509}, {"toolkit": "airtable", "tool": "AIRTABLE_LIST_RECORDS", "total_calls": 158310, "num_projects_using": 143}, {"toolkit": "gemini", "tool": "GEMINI_GENERATE_IMAGE", "total_calls": 154171, "num_projects_using": 1705}, {"toolkit": "intercom", "tool": "INTERCOM_CLOSE_CONVERSATION", "total_calls": 142342, "num_projects_using": 4}, {"toolkit": "composio_search", "tool": "COMPOSIO_SEARCH_SEARCH", "total_calls": 137619, "num_projects_using": 4}, {"toolkit": "composio_search", "tool": "COMPOSIO_SEARCH_TAVILY", "total_calls": 126578, "num_projects_using": 8}, {"toolkit": "googlecalendar", "tool": "GOOGLECALENDAR_EVENTS_LIST", "total_calls": 125593, "num_projects_using": 867}, {"toolkit": "gmail", "tool": "GMAIL_FETCH_MESSAGE_BY_THREAD_ID", "total_calls": 117160, "num_projects_using": 559}, {"toolkit": "composio", "tool": "COMPOSIO_MANAGE_CONNECTIONS", "total_calls": 115480, "num_projects_using": 9635}, {"toolkit": "notion", "tool": "NOTION_UPDATE_ROW_DATABASE", "total_calls": 109351, "num_projects_using": 179}, {"toolkit": "outlook", "tool": "OUTLOOK_SEND_EMAIL", "total_calls": 108680, "num_projects_using": 229}, {"toolkit": "composio_search", "tool": "COMPOSIO_SEARCH_NEWS", "total_calls": 108476, "num_projects_using": 1330}, {"toolkit": "googledrive", "tool": "GOOGLEDRIVE_GET_FILE_METADATA", "total_calls": 107692, "num_projects_using": 689}, {"toolkit": "gmail", "tool": "GMAIL_ADD_LABEL_TO_EMAIL", "total_calls": 102908, "num_projects_using": 172}, {"toolkit": "gmail", "tool": "GMAIL_GET_ATTACHMENT", "total_calls": 101445, "num_projects_using": 444}], "GROWTH": [{"toolkit": "googlesuper", "tool": "GOOGLESUPER_LIST_LABELS", "total_calls": 16286364, "num_projects_using": 8}, {"toolkit": "googlesuper", "tool": "GOOGLESUPER_CREATE_LABEL", "total_calls": 16262851, "num_projects_using": 5}, {"toolkit": "googlesuper", "tool": "GOOGLESUPER_BATCH_MODIFY_MESSAGES", "total_calls": 16246355, "num_projects_using": 7}, {"toolkit": "gmail", "tool": "GMAIL_FETCH_EMAILS", "total_calls": 12519393, "num_projects_using": 138}, {"toolkit": "composio", "tool": "COMPOSIO_MULTI_EXECUTE_TOOL", "total_calls": 11869557, "num_projects_using": 114}, {"toolkit": "slack", "tool": "SLACK_LIST_ALL_CHANNELS", "total_calls": 10923848, "num_projects_using": 74}, {"toolkit": "tavily", "tool": "TAVILY_SEARCH", "total_calls": 10515628, "num_projects_using": 3}, {"toolkit": "slack", "tool": "SLACK_FETCH_CONVERSATION_HISTORY", "total_calls": 8932235, "num_projects_using": 74}, {"toolkit": "composio", "tool": "COMPOSIO_SEARCH_TOOLS", "total_calls": 6475640, "num_projects_using": 146}, {"toolkit": "slackbot", "tool": "SLACKBOT_FETCH_CONVERSATION_HISTORY", "total_calls": 5530070, "num_projects_using": 9}, {"toolkit": "gmail", "tool": "GMAIL_FETCH_MESSAGE_BY_THREAD_ID", "total_calls": 5168295, "num_projects_using": 73}, {"toolkit": "gmail", "tool": "GMAIL_GET_PEOPLE", "total_calls": 4587113, "num_projects_using": 17}, {"toolkit": "twitter", "tool": "TWITTER_RECENT_SEARCH", "total_calls": 4009587, "num_projects_using": 22}, {"toolkit": "slack", "tool": "SLACK_FETCH_ITEM_REACTIONS", "total_calls": 2221464, "num_projects_using": 11}, {"toolkit": "googlecalendar", "tool": "GOOGLECALENDAR_EVENTS_LIST", "total_calls": 2203439, "num_projects_using": 85}, {"toolkit": "googlesuper", "tool": "GOOGLESUPER_FETCH_EMAILS", "total_calls": 2017171, "num_projects_using": 15}, {"toolkit": "gmail", "tool": "GMAIL_GET_PROFILE", "total_calls": 1767734, "num_projects_using": 89}, {"toolkit": "airtable", "tool": "AIRTABLE_LIST_RECORDS", "total_calls": 1692691, "num_projects_using": 27}, {"toolkit": "googlesuper", "tool": "GOOGLESUPER_FIND_EVENT", "total_calls": 1506062, "num_projects_using": 9}, {"toolkit": "outlook", "tool": "OUTLOOK_OUTLOOK_GET_MESSAGE", "total_calls": 1447265, "num_projects_using": 20}, {"toolkit": "composio", "tool": "COMPOSIO_REMOTE_WORKBENCH", "total_calls": 1444505, "num_projects_using": 85}, {"toolkit": "shopify", "tool": "SHOPIFY_GRAPH_QL_QUERY", "total_calls": 1359160, "num_projects_using": 8}, {"toolkit": "gmail", "tool": "GMAIL_CREATE_EMAIL_DRAFT", "total_calls": 1325457, "num_projects_using": 84}, {"toolkit": "pipedrive", "tool": "PIPEDRIVE_LIST_PARTICIPANTS_OF_A_DEAL", "total_calls": 1316940, "num_projects_using": 2}, {"toolkit": "composio", "tool": "COMPOSIO_GET_TOOL_SCHEMAS", "total_calls": 1306666, "num_projects_using": 74}, {"toolkit": "googlesuper", "tool": "GOOGLESUPER_CREATE_EMAIL_DRAFT", "total_calls": 1055887, "num_projects_using": 9}, {"toolkit": "gmail", "tool": "GMAIL_FETCH_MESSAGE_BY_MESSAGE_ID", "total_calls": 959736, "num_projects_using": 85}, {"toolkit": "googlecalendar", "tool": "GOOGLECALENDAR_FIND_EVENT", "total_calls": 949258, "num_projects_using": 63}, {"toolkit": "outlook", "tool": "OUTLOOK_SEARCH_MESSAGES", "total_calls": 937763, "num_projects_using": 29}, {"toolkit": "googledrive", "tool": "GOOGLEDRIVE_DOWNLOAD_FILE", "total_calls": 912275, "num_projects_using": 66}, {"toolkit": "hubspot", "tool": "HUBSPOT_FETCH_CONTACT_DETAILS_BY_ID", "total_calls": 888186, "num_projects_using": 2}, {"toolkit": "outlook", "tool": "OUTLOOK_LIST_MESSAGES", "total_calls": 849425, "num_projects_using": 29}, {"toolkit": "peopledatalabs", "tool": "PEOPLEDATALABS_PEOPLE_SEARCH_ELASTIC", "total_calls": 812918, "num_projects_using": 6}, {"toolkit": "slack", "tool": "SLACK_FETCH_MESSAGE_THREAD_FROM_A_CONVERSATION", "total_calls": 754190, "num_projects_using": 49}, {"toolkit": "googledrive", "tool": "GOOGLEDRIVE_FIND_FILE", "total_calls": 665940, "num_projects_using": 77}, {"toolkit": "instagram", "tool": "INSTAGRAM_LIST_ALL_MESSAGES", "total_calls": 660310, "num_projects_using": 13}, {"toolkit": "telegram", "tool": "TELEGRAM_GET_UPDATES", "total_calls": 657792, "num_projects_using": 14}, {"toolkit": "outlook", "tool": "OUTLOOK_GET_MESSAGE", "total_calls": 653956, "num_projects_using": 27}, {"toolkit": "salesforce", "tool": "SALESFORCE_RUN_SOQL_QUERY", "total_calls": 646854, "num_projects_using": 17}, {"toolkit": "googledrive", "tool": "GOOGLEDRIVE_GET_FILE_METADATA", "total_calls": 640019, "num_projects_using": 53}, {"toolkit": "slack", "tool": "SLACK_LIST_ALL_USERS", "total_calls": 589056, "num_projects_using": 40}, {"toolkit": "googlesuper", "tool": "GOOGLESUPER_LIST_CALENDARS", "total_calls": 578782, "num_projects_using": 10}, {"toolkit": "github", "tool": "GITHUB_GET_REPOSITORY_CONTENT", "total_calls": 575570, "num_projects_using": 43}, {"toolkit": "composio", "tool": "COMPOSIO_REMOTE_BASH_TOOL", "total_calls": 568040, "num_projects_using": 50}, {"toolkit": "googlesheets", "tool": "GOOGLESHEETS_BATCH_GET", "total_calls": 522684, "num_projects_using": 68}, {"toolkit": "telegram", "tool": "TELEGRAM_SEND_MESSAGE", "total_calls": 492192, "num_projects_using": 16}, {"toolkit": "slack", "tool": "SLACK_SEARCH_MESSAGES", "total_calls": 488167, "num_projects_using": 70}, {"toolkit": "github", "tool": "GITHUB_FIND_REPOSITORIES", "total_calls": 484046, "num_projects_using": 25}, {"toolkit": "twitter", "tool": "TWITTER_USER_LOOKUP_ME", "total_calls": 476423, "num_projects_using": 17}, {"toolkit": "hubspot", "tool": "HUBSPOT_READ_CONTACT", "total_calls": 453312, "num_projects_using": 15}], "STARTER": [{"toolkit": "gmail", "tool": "GMAIL_FETCH_EMAILS", "total_calls": 13227214, "num_projects_using": 453}, {"toolkit": "reddit", "tool": "REDDIT_RETRIEVE_SPECIFIC_COMMENT", "total_calls": 6186654, "num_projects_using": 34}, {"toolkit": "slack", "tool": "SLACK_LIST_ALL_CHANNELS", "total_calls": 5413777, "num_projects_using": 137}, {"toolkit": "gmail", "tool": "GMAIL_FETCH_MESSAGE_BY_MESSAGE_ID", "total_calls": 4521903, "num_projects_using": 254}, {"toolkit": "googledrive", "tool": "GOOGLEDRIVE_LIST_FILES", "total_calls": 4186085, "num_projects_using": 128}, {"toolkit": "outlook", "tool": "OUTLOOK_OUTLOOK_GET_EVENT", "total_calls": 4075982, "num_projects_using": 5}, {"toolkit": "slack", "tool": "SLACK_FETCH_CONVERSATION_HISTORY", "total_calls": 3896671, "num_projects_using": 141}, {"toolkit": "googlecalendar", "tool": "GOOGLECALENDAR_EVENTS_LIST", "total_calls": 2716498, "num_projects_using": 263}, {"toolkit": "gmail", "tool": "GMAIL_GET_ATTACHMENT", "total_calls": 2623671, "num_projects_using": 140}, {"toolkit": "composio", "tool": "COMPOSIO_MULTI_EXECUTE_TOOL", "total_calls": 2457367, "num_projects_using": 423}, {"toolkit": "outlook", "tool": "OUTLOOK_QUERY_EMAILS", "total_calls": 2324796, "num_projects_using": 106}, {"toolkit": "gmail", "tool": "GMAIL_FETCH_MESSAGE_BY_THREAD_ID", "total_calls": 1947299, "num_projects_using": 190}, {"toolkit": "instagram", "tool": "INSTAGRAM_LIST_ALL_MESSAGES", "total_calls": 1855612, "num_projects_using": 33}, {"toolkit": "instagram", "tool": "INSTAGRAM_GET_IG_MEDIA_INSIGHTS", "total_calls": 1403178, "num_projects_using": 33}, {"toolkit": "gmail", "tool": "GMAIL_LIST_LABELS", "total_calls": 1400691, "num_projects_using": 168}, {"toolkit": "composio", "tool": "COMPOSIO_SEARCH_TOOLS", "total_calls": 1237115, "num_projects_using": 522}, {"toolkit": "gmail", "tool": "GMAIL_MODIFY_THREAD_LABELS", "total_calls": 1120474, "num_projects_using": 55}, {"toolkit": "googlesuper", "tool": "GOOGLESUPER_FETCH_EMAILS", "total_calls": 1009012, "num_projects_using": 21}, {"toolkit": "outlook", "tool": "OUTLOOK_OUTLOOK_LIST_EVENTS", "total_calls": 1000394, "num_projects_using": 18}, {"toolkit": "gmail", "tool": "GMAIL_CREATE_LABEL", "total_calls": 973610, "num_projects_using": 95}, {"toolkit": "outlook", "tool": "OUTLOOK_GET_MESSAGE", "total_calls": 940194, "num_projects_using": 105}, {"toolkit": "composio", "tool": "COMPOSIO_REMOTE_WORKBENCH", "total_calls": 932757, "num_projects_using": 283}, {"toolkit": "gmail", "tool": "GMAIL_GET_PROFILE", "total_calls": 915407, "num_projects_using": 267}, {"toolkit": "googlesuper", "tool": "GOOGLESUPER_FETCH_MESSAGE_BY_THREAD_ID", "total_calls": 867552, "num_projects_using": 7}, {"toolkit": "googlecalendar", "tool": "GOOGLECALENDAR_FIND_EVENT", "total_calls": 844991, "num_projects_using": 179}, {"toolkit": "googledrive", "tool": "GOOGLEDRIVE_GET_FILE_METADATA", "total_calls": 829118, "num_projects_using": 153}, {"toolkit": "slackbot", "tool": "SLACKBOT_FETCH_CONVERSATION_HISTORY", "total_calls": 761033, "num_projects_using": 28}, {"toolkit": "gmail", "tool": "GMAIL_LIST_THREADS", "total_calls": 695222, "num_projects_using": 157}, {"toolkit": "outlook", "tool": "OUTLOOK_LIST_MESSAGES", "total_calls": 667784, "num_projects_using": 100}, {"toolkit": "instagram", "tool": "INSTAGRAM_LIST_ALL_CONVERSATIONS", "total_calls": 648922, "num_projects_using": 36}, {"toolkit": "composio_search", "tool": "COMPOSIO_SEARCH_WEB", "total_calls": 637654, "num_projects_using": 123}, {"toolkit": "outlook", "tool": "OUTLOOK_LIST_CONTACTS", "total_calls": 610193, "num_projects_using": 20}, {"toolkit": "outlook", "tool": "OUTLOOK_SEARCH_MESSAGES", "total_calls": 565426, "num_projects_using": 108}, {"toolkit": "reddit", "tool": "REDDIT_RETRIEVE_POST_COMMENTS", "total_calls": 542567, "num_projects_using": 59}, {"toolkit": "gmail", "tool": "GMAIL_MOVE_TO_TRASH", "total_calls": 536751, "num_projects_using": 67}, {"toolkit": "outlook", "tool": "OUTLOOK_DOWNLOAD_OUTLOOK_ATTACHMENT", "total_calls": 504357, "num_projects_using": 57}, {"toolkit": "googledrive", "tool": "GOOGLEDRIVE_FIND_FILE", "total_calls": 494074, "num_projects_using": 252}, {"toolkit": "googledrive", "tool": "GOOGLEDRIVE_DOWNLOAD_FILE", "total_calls": 488775, "num_projects_using": 200}, {"toolkit": "gmail", "tool": "GMAIL_SEND_EMAIL", "total_calls": 480935, "num_projects_using": 327}, {"toolkit": "proxy", "tool": "PROXY_EXECUTE", "total_calls": 452263, "num_projects_using": 38}, {"toolkit": "composio", "tool": "COMPOSIO_MANAGE_CONNECTIONS", "total_calls": 424703, "num_projects_using": 441}, {"toolkit": "reddit", "tool": "REDDIT_SEARCH_ACROSS_SUBREDDITS", "total_calls": 414987, "num_projects_using": 83}, {"toolkit": "twitter", "tool": "TWITTER_RECENT_SEARCH", "total_calls": 407991, "num_projects_using": 55}, {"toolkit": "gmail", "tool": "GMAIL_MOVE_THREAD_TO_TRASH", "total_calls": 342312, "num_projects_using": 12}, {"toolkit": "outlook", "tool": "OUTLOOK_OUTLOOK_LIST_MESSAGES", "total_calls": 337185, "num_projects_using": 34}, {"toolkit": "googlesheets", "tool": "GOOGLESHEETS_VALUES_GET", "total_calls": 335536, "num_projects_using": 154}, {"toolkit": "googlesheets", "tool": "GOOGLESHEETS_BATCH_GET", "total_calls": 330772, "num_projects_using": 195}, {"toolkit": "asana", "tool": "ASANA_GET_A_TASK", "total_calls": 326245, "num_projects_using": 34}, {"toolkit": "outlook", "tool": "OUTLOOK_LIST_OUTLOOK_ATTACHMENTS", "total_calls": 309324, "num_projects_using": 67}, {"toolkit": "slack", "tool": "SLACK_LIST_ALL_USERS", "total_calls": 302429, "num_projects_using": 72}], "HOBBY": [{"toolkit": "gmail", "tool": "GMAIL_FETCH_EMAILS", "total_calls": 48130371, "num_projects_using": 17519}, {"toolkit": "googlecalendar", "tool": "GOOGLECALENDAR_EVENTS_LIST", "total_calls": 41393755, "num_projects_using": 6088}, {"toolkit": "gmail", "tool": "GMAIL_FETCH_MESSAGE_BY_THREAD_ID", "total_calls": 28804807, "num_projects_using": 3280}, {"toolkit": "gmail", "tool": "GMAIL_FETCH_MESSAGE_BY_MESSAGE_ID", "total_calls": 27706370, "num_projects_using": 6763}, {"toolkit": "composio", "tool": "COMPOSIO_MULTI_EXECUTE_TOOL", "total_calls": 18207328, "num_projects_using": 39335}, {"toolkit": "gmail", "tool": "GMAIL_PROXY_EXECUTE", "total_calls": 13287965, "num_projects_using": 1057}, {"toolkit": "instagram", "tool": "INSTAGRAM_LIST_ALL_MESSAGES", "total_calls": 9206065, "num_projects_using": 679}, {"toolkit": "microsoft_teams", "tool": "MICROSOFT_TEAMS_CHATS_GET_ALL_MESSAGES", "total_calls": 7618774, "num_projects_using": 98}, {"toolkit": "googlecalendar", "tool": "GOOGLECALENDAR_CREATE_EVENT", "total_calls": 6626527, "num_projects_using": 5804}, {"toolkit": "microsoft_teams", "tool": "MICROSOFT_TEAMS_LIST_MESSAGE_REPLIES", "total_calls": 5679277, "num_projects_using": 44}, {"toolkit": "microsoft_teams", "tool": "MICROSOFT_TEAMS_LIST_USER_CHAT_MESSAGES", "total_calls": 4956387, "num_projects_using": 201}, {"toolkit": "airtable", "tool": "AIRTABLE_LIST_RECORDS", "total_calls": 4831170, "num_projects_using": 515}, {"toolkit": "slack", "tool": "SLACK_FETCH_CONVERSATION_HISTORY", "total_calls": 4287349, "num_projects_using": 2004}, {"toolkit": "outlook", "tool": "OUTLOOK_QUERY_EMAILS", "total_calls": 4074254, "num_projects_using": 3619}, {"toolkit": "outlook", "tool": "OUTLOOK_OUTLOOK_LIST_MESSAGES", "total_calls": 3729935, "num_projects_using": 375}, {"toolkit": "hubspot", "tool": "HUBSPOT_READ_CRM_OBJECT_BY_ID", "total_calls": 3504864, "num_projects_using": 181}, {"toolkit": "googlecalendar", "tool": "GOOGLECALENDAR_FIND_FREE_SLOTS", "total_calls": 3408220, "num_projects_using": 1273}, {"toolkit": "instagram", "tool": "INSTAGRAM_GET_POST_INSIGHTS", "total_calls": 3316911, "num_projects_using": 192}, {"toolkit": "gmail", "tool": "GMAIL_GET_PROFILE", "total_calls": 3203402, "num_projects_using": 5468}, {"toolkit": "gmail", "tool": "GMAIL_LIST_THREADS", "total_calls": 3183584, "num_projects_using": 2721}, {"toolkit": "clickup", "tool": "CLICKUP_GET_TASK_COMMENTS", "total_calls": 3130178, "num_projects_using": 134}, {"toolkit": "googlecalendar", "tool": "GOOGLECALENDAR_FIND_EVENT", "total_calls": 3005304, "num_projects_using": 3259}, {"toolkit": "composio", "tool": "COMPOSIO_SEARCH_TOOLS", "total_calls": 2979662, "num_projects_using": 52544}, {"toolkit": "composio", "tool": "COMPOSIO_REMOTE_WORKBENCH", "total_calls": 2880702, "num_projects_using": 24185}, {"toolkit": "instagram", "tool": "INSTAGRAM_GET_POST_COMMENTS", "total_calls": 2763550, "num_projects_using": 99}, {"toolkit": "gmail", "tool": "GMAIL_REPLY_TO_THREAD", "total_calls": 2758738, "num_projects_using": 1819}, {"toolkit": "one_drive", "tool": "ONE_DRIVE_LIST_FOLDER_CHILDREN", "total_calls": 2563807, "num_projects_using": 487}, {"toolkit": "googlesheets", "tool": "GOOGLESHEETS_BATCH_GET", "total_calls": 2534803, "num_projects_using": 5298}, {"toolkit": "googledrive", "tool": "GOOGLEDRIVE_LIST_FILES", "total_calls": 2388963, "num_projects_using": 1909}, {"toolkit": "attio", "tool": "ATTIO_FIND_RECORD", "total_calls": 2228833, "num_projects_using": 148}, {"toolkit": "slack", "tool": "SLACK_PROXY_EXECUTE", "total_calls": 2198684, "num_projects_using": 180}, {"toolkit": "hubspot", "tool": "HUBSPOT_PROXY_EXECUTE", "total_calls": 2161971, "num_projects_using": 89}, {"toolkit": "googledrive", "tool": "GOOGLEDRIVE_DOWNLOAD_FILE", "total_calls": 1924452, "num_projects_using": 4083}, {"toolkit": "airtable", "tool": "AIRTABLE_UPDATE_MULTIPLE_RECORDS", "total_calls": 1903494, "num_projects_using": 159}, {"toolkit": "instagram", "tool": "INSTAGRAM_GET_CONVERSATION", "total_calls": 1895926, "num_projects_using": 465}, {"toolkit": "gmail", "tool": "GMAIL_LIST_DRAFTS", "total_calls": 1862128, "num_projects_using": 1639}, {"toolkit": "outlook", "tool": "OUTLOOK_LIST_MESSAGES", "total_calls": 1813108, "num_projects_using": 1322}, {"toolkit": "googledrive", "tool": "GOOGLEDRIVE_FIND_FILE", "total_calls": 1754674, "num_projects_using": 6502}, {"toolkit": "googlesuper", "tool": "GOOGLESUPER_CREATE_EVENT", "total_calls": 1638595, "num_projects_using": 137}, {"toolkit": "outlook", "tool": "OUTLOOK_OUTLOOK_LIST_EVENTS", "total_calls": 1511360, "num_projects_using": 171}, {"toolkit": "googlecalendar", "tool": "GOOGLECALENDAR_EVENTS_GET", "total_calls": 1484970, "num_projects_using": 847}, {"toolkit": "outlook", "tool": "OUTLOOK_GET_EVENT", "total_calls": 1471791, "num_projects_using": 207}, {"toolkit": "instagram", "tool": "INSTAGRAM_GET_IG_MEDIA_COMMENTS", "total_calls": 1404278, "num_projects_using": 523}, {"toolkit": "one_drive", "tool": "ONE_DRIVE_SEARCH_ITEMS", "total_calls": 1340846, "num_projects_using": 584}, {"toolkit": "microsoft_teams", "tool": "MICROSOFT_TEAMS_TEAMS_LIST_CHANNEL_MESSAGES", "total_calls": 1319666, "num_projects_using": 131}, {"toolkit": "pipedrive", "tool": "PIPEDRIVE_LIST_PARTICIPANTS_OF_A_DEAL", "total_calls": 1316953, "num_projects_using": 4}, {"toolkit": "proxy", "tool": "PROXY_EXECUTE", "total_calls": 1286738, "num_projects_using": 459}, {"toolkit": "instagram", "tool": "INSTAGRAM_LIST_ALL_CONVERSATIONS", "total_calls": 1257641, "num_projects_using": 912}, {"toolkit": "hubspot", "tool": "HUBSPOT_SEARCH_CONTACTS_BY_CRITERIA", "total_calls": 1243615, "num_projects_using": 566}, {"toolkit": "outlook", "tool": "OUTLOOK_GET_CALENDAR_VIEW", "total_calls": 1210556, "num_projects_using": 1389}]};
+
+const ORCH = new Set(['COMPOSIO_MULTI_EXECUTE_TOOL','COMPOSIO_SEARCH_TOOLS','COMPOSIO_REMOTE_WORKBENCH','COMPOSIO_GET_RECIPE_DETAILS','COMPOSIO_EXECUTE_RECIPE','COMPOSIO_REMOTE_BASH_TOOL','COMPOSIO_MANAGE_CONNECTIONS','COMPOSIO_GET_TOOL_SCHEMAS']);
+
+const COLORS = {
+  gmail:'#EA4335',googlecalendar:'#1A73E8',composio:'#7F77DD',slack:'#4A154B',
+  microsoft_teams:'#5059C9',googlesuper:'#0F6E56',instagram:'#E1306C',outlook:'#0078D4',
+  googledrive:'#4285F4',tavily:'#BA7517',airtable:'#18BFFF',twitter:'#1DA1F2',
+  one_drive:'#0364B8',hubspot:'#FF7A59',googlesheets:'#34A853',reddit:'#FF4500',
+  slackbot:'#36C5F0',clickup:'#7B68EE',pipedrive:'#172733',telegram:'#0088CC',
+  composio_search:'#9B59B6',supabase:'#3ECF8E',salesforce:'#00A1E0',browser_tool:'#FF6B35',
+  close:'#4E4E4E',zoho:'#E42527',exa:'#1A1A1A',notion:'#000000',gemini:'#4285F4',
+  intercom:'#286EFA',github:'#24292E',shopify:'#96BF48',peopledatalabs:'#2C3E50',
+  attio:'#FF5C35',asana:'#F06A6A',proxy:'#666666',reddit:'#FF4500'
+};
+
+function getColor(tk) { return COLORS[tk] || '#888888'; }
+
+function fmt(n) {
+  if (n >= 1e9) return (n/1e9).toFixed(1)+'B';
+  if (n >= 1e6) return (n/1e6).toFixed(1)+'M';
+  if (n >= 1e3) return Math.round(n/1e3)+'K';
+  return n.toLocaleString();
+}
+
+let plan = 'ALL', view = 'volume', expanded = new Set();
+
+function setPlan(p, el) {
+  plan = p;
+  document.querySelectorAll('.pill').forEach(x => x.classList.remove('active'));
+  el.classList.add('active');
+  expanded.clear();
+  render();
+}
+
+function setView(v, el) {
+  view = v;
+  document.querySelectorAll('.vtab').forEach(x => x.classList.remove('active'));
+  el.classList.add('active');
+  render();
+}
+
+function toggleExpand(tk) {
+  if (expanded.has(tk)) expanded.delete(tk);
+  else expanded.add(tk);
+  render();
+}
+
+function getFiltered() {
+  const hideOrch = document.getElementById('hide-orch').checked;
+  let data = (PLAN_DATA[plan] || []).slice();
+  if (hideOrch) data = data.filter(d => !ORCH.has(d.tool));
+  return data;
+}
+
+function render() {
+  const flat = document.getElementById('flat-view').checked;
+  const data = getFiltered();
+  const colKey = view === 'volume' ? 'total_calls' : 'num_projects_using';
+  const colLabel = view === 'volume' ? 'calls' : 'projects';
+
+  const totalCalls = data.reduce((s,d) => s+d.total_calls, 0);
+  const toolkits = new Set(data.map(d => d.toolkit)).size;
+  const widest = [...data].sort((a,b) => b.num_projects_using - a.num_projects_using)[0];
+  const mostCalled = [...data].sort((a,b) => b.total_calls - a.total_calls)[0];
+
+  document.getElementById('m-total').textContent = fmt(totalCalls);
+  document.getElementById('m-toolkits').textContent = toolkits;
+  document.getElementById('m-wide').textContent = widest ? widest.toolkit + ' · ' + fmt(widest.num_projects_using) + ' projects' : '—';
+  document.getElementById('m-top').textContent = mostCalled ? mostCalled.toolkit + ' · ' + fmt(mostCalled.total_calls) : '—';
+
+  const area = document.getElementById('chart-area');
+  area.className = flat ? 'flat-mode' : '';
+
+  // Column headers
+  const primaryLabel = view === 'breadth' ? 'projects' : 'calls';
+  const secondaryLabel = view === 'breadth' ? 'calls' : 'projects';
+  let html = `<div class="col-headers">
+    <div class="ch-name">${flat ? 'tool' : 'toolkit'}</div>
+    <div class="ch-bar"></div>
+    <div class="ch-calls">${primaryLabel}</div>
+    <div class="ch-projects">${secondaryLabel}</div>
+  </div>`;
+
+  if (flat) {
+    // Flat mode: show all tools sorted
+    const sorted = [...data].sort((a,b) => b[colKey] - a[colKey]);
+    const maxVal = sorted[0] ? sorted[0][colKey] : 1;
+    sorted.forEach(d => {
+      const val = d[colKey];
+      const pct = Math.round((val/maxVal)*100);
+      const color = getColor(d.toolkit);
+      const isOrch = ORCH.has(d.tool);
+      const label = d.tool.toLowerCase().replace(/_/g,' ');
+      const secVal = view === 'breadth' ? d.total_calls : d.num_projects_using;
+      html += `<div class="toolkit-block">
+        <div class="toolkit-row" style="cursor:default">
+          <div class="expand-arrow"></div>
+          <div class="tk-name" title="${d.tool}">${label}${isOrch ? '<span class="orch-badge">orchestration</span>' : ''}</div>
+          <div class="bar-wrap"><div class="bar-fill" style="width:${pct}%;background:${color}"></div></div>
+          <div class="bar-num">${fmt(val)}</div>
+          <div class="bar-projects">${fmt(secVal)}</div>
+        </div>
+      </div>`;
+    });
+  } else {
+    // Grouped mode: aggregate by toolkit
+    const byTk = {};
+    data.forEach(d => {
+      if (!byTk[d.toolkit]) byTk[d.toolkit] = {total_calls:0, num_projects_using:0, tools:[]};
+      byTk[d.toolkit].total_calls += d.total_calls;
+      byTk[d.toolkit].num_projects_using = Math.max(byTk[d.toolkit].num_projects_using, d.num_projects_using);
+      byTk[d.toolkit].tools.push(d);
+    });
+
+    const sorted = Object.entries(byTk).sort((a,b) => b[1][colKey] - a[1][colKey]);
+    const maxVal = sorted[0] ? sorted[0][1][colKey] : 1;
+
+    sorted.forEach(([tk, agg]) => {
+      const val = agg[colKey];
+      const pct = Math.round((val/maxVal)*100);
+      const color = getColor(tk);
+      const isOpen = expanded.has(tk);
+      const tools = [...agg.tools].sort((a,b) => b[colKey] - a[colKey]);
+      const toolMaxVal = tools[0] ? tools[0][colKey] : 1;
+
+        const secVal = view === 'breadth' ? agg.total_calls : agg.num_projects_using;
+      html += `<div class="toolkit-block">
+        <div class="toolkit-row${isOpen?' expanded':''}" onclick="toggleExpand('${tk}')">
+          <div class="expand-arrow${isOpen?' open':''}">▶</div>
+          <div class="tk-dot" style="background:${color}"></div>
+          <div class="tk-name">${tk}</div>
+          <div class="bar-wrap"><div class="bar-fill" style="width:${pct}%;background:${color}"></div></div>
+          <div class="bar-num">${fmt(val)}</div>
+          <div class="bar-projects">${fmt(secVal)}</div>
+        </div>
+        <div class="tool-rows${isOpen?' open':''}">`;
+
+      tools.forEach(d => {
+        const tval = d[colKey];
+        const tpct = Math.round((tval/toolMaxVal)*100);
+        const isOrch = ORCH.has(d.tool);
+        const label = d.tool.toLowerCase().replace(/_/g,' ');
+        const tsecVal = view === 'breadth' ? d.total_calls : d.num_projects_using;
+        html += `<div class="tool-row">
+          <div class="tool-name" title="${d.tool}">${label}${isOrch ? '<span class="orch-badge">orch</span>' : ''}</div>
+          <div class="tool-bar-wrap"><div class="tool-bar-fill" style="width:${tpct}%;background:${color}"></div></div>
+          <div class="tool-bar-num">${fmt(tval)}</div>
+          <div class="tool-bar-projects">${fmt(tsecVal)}</div>
+        </div>`;
+      });
+
+      html += `</div></div>`;
+    });
+  }
+
+  area.innerHTML = html;
+}
+
+render();
+</script>
+</body>
+</html>
