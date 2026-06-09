@@ -54,7 +54,7 @@
   .expand-arrow { font-size: 10px; color: var(--muted); width: 14px; flex-shrink: 0; transition: transform 0.2s; user-select: none; }
   .expand-arrow.open { transform: rotate(90deg); }
   .tk-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-  .tk-name { font-weight: 500; font-size: 13px; min-width: 158px; flex-shrink: 0; }
+  .tk-name { font-weight: 500; font-size: 13px; width: 220px; flex-shrink: 0; text-align: right; }
   .tk-count { font-size: 10px; color: var(--muted); font-family: var(--font-mono); margin-left: 2px; flex-shrink: 0; }
   .bar-wrap { flex: 1; height: 14px; background: var(--bar-bg); border-radius: 2px; overflow: hidden; }
   .toolkit-row:hover .bar-wrap, .toolkit-row.expanded .bar-wrap { background: var(--border); }
@@ -64,14 +64,14 @@
   .tool-rows { background: var(--bar-bg); border-radius: 0 0 6px 6px; padding: 4px 0 6px; display: none; }
   .tool-rows.open { display: block; }
   .tool-row { display: flex; align-items: center; gap: 10px; padding: 4px 10px 4px 34px; }
-  .tool-name { font-family: var(--font-mono); font-size: 11px; color: var(--muted); min-width: 180px; flex-shrink: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .tool-name { font-family: var(--font-mono); font-size: 11px; color: var(--muted); width: 220px; flex-shrink: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: right; }
   .tool-bar-wrap { flex: 1; height: 8px; background: var(--border); border-radius: 1px; overflow: hidden; }
   .tool-bar-fill { height: 100%; border-radius: 1px; opacity: 0.6; transition: width 0.3s; }
   .tool-bar-num { font-family: var(--font-mono); font-size: 10px; color: var(--muted); width: 80px; text-align: right; flex-shrink: 0; }
   .tool-bar-proj { font-family: var(--font-mono); font-size: 10px; color: var(--muted); width: 80px; text-align: right; flex-shrink: 0; }
   .orch-badge { font-size: 9px; font-family: var(--font-mono); background: #ede9e0; color: #7a7870; padding: 1px 5px; border-radius: 3px; margin-left: 4px; flex-shrink: 0; }
   .flat-mode .tk-dot { display: none; }
-  .flat-mode .tk-name { font-family: var(--font-mono); font-size: 11px; font-weight: 400; min-width: 180px; }
+  .flat-mode .tk-name { font-family: var(--font-mono); font-size: 11px; font-weight: 400; width: 220px; text-align: right; }
   .flat-mode .expand-arrow { opacity: 0; pointer-events: none; }
   .flat-mode .tk-count { display: none; }
   .empty-state { padding: 3rem; text-align: center; color: var(--muted); font-size: 13px; }
