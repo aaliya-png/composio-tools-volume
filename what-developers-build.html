@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>What developers build with Composio</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f7f6f2;--surface:#ffffff;--border:#e4e2da;
+  --text:#1a1916;--muted:#7a7870;--bar-bg:#ede9e0;
+  --green:#1a7a4a;--green-bg:#edf7f1;
+  --yellow:#8a6900;--yellow-bg:#fef9e7;
+  --r-card:10px;--r-pill:6px;
+}
+body{font-family:'DM Sans',-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:15px;line-height:1.5}
+
+.pw{max-width:1200px;margin:0 auto;padding:0 28px}
+
+/* ── header ── */
+.hdr{background:var(--bg);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;padding-top:18px}
+.back{display:inline-flex;align-items:center;gap:5px;font-family:'DM Mono',monospace;font-size:12px;color:var(--muted);text-decoration:none;margin-bottom:14px;transition:color .15s}
+.back:hover{color:var(--text)}
+.page-title{font-size:21px;font-weight:600;margin-bottom:18px}
+.tabs{display:flex;gap:0}
+.tab-btn{padding:10px 22px;background:none;border:none;border-bottom:2px solid transparent;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;color:var(--muted);cursor:pointer;transition:color .15s,border-color .15s;white-space:nowrap}
+.tab-btn:hover{color:var(--text)}
+.tab-btn.active{color:var(--text);border-bottom-color:var(--text)}
+
+/* ── tab content ── */
+.tc{display:none;padding:32px 0 48px;animation:fadeUp .2s ease}
+.tc.active{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── Tab 1: use-case cards ── */
+.cards-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+@media(max-width:920px){.cards-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:580px){.cards-grid{grid-template-columns:1fr}}
+
+.uc-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-card);padding:20px 20px 18px;display:flex;flex-direction:column;gap:11px;transition:border-color .15s}
+.uc-card:hover{border-color:#c8c5bb}
+
+.card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.card-num{font-family:'DM Mono',monospace;font-size:30px;font-weight:500;line-height:1;letter-spacing:-.02em}
+.badge{display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:500;padding:3px 9px;border-radius:var(--r-pill);white-space:nowrap;flex-shrink:0;margin-top:4px}
+.badge-v{background:var(--green-bg);color:var(--green)}
+.badge-e{background:var(--yellow-bg);color:var(--yellow)}
+
+.card-title{font-size:15px;font-weight:600;line-height:1.3}
+.card-desc{font-size:12.5px;color:var(--muted);line-height:1.55}
+.chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:auto;padding-top:4px}
+.chip{font-family:'DM Mono',monospace;font-size:10px;background:var(--bar-bg);color:var(--muted);padding:3px 7px;border-radius:4px;white-space:nowrap}
+
+/* ── Tab 2: quadrant chart ── */
+.chart-hdr{margin-bottom:20px}
+.chart-hdr h2{font-size:18px;font-weight:600;margin-bottom:5px}
+.chart-hdr p{font-size:13px;color:var(--muted)}
+.chart-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-card);padding:24px 20px 20px;position:relative;overflow:hidden}
+#qc{width:100%;display:block;cursor:crosshair}
+
+.tt{position:fixed;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-card);padding:11px 15px;pointer-events:none;opacity:0;transition:opacity .12s;z-index:9999;min-width:170px}
+.tt.vis{opacity:1}
+.tt-name{font-weight:600;font-size:14px;margin-bottom:5px}
+.tt-stat{font-family:'DM Mono',monospace;font-size:11.5px;color:var(--muted);line-height:1.7}
+.tt-note{font-size:11px;color:var(--muted);margin-top:5px;font-style:italic;border-top:1px solid var(--border);padding-top:5px}
+
+.legend{display:flex;flex-wrap:wrap;gap:10px 18px;margin-top:18px;padding-top:18px;border-top:1px solid var(--border)}
+.leg-item{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--muted)}
+.leg-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+
+/* ── Tab 3: spotlights ── */
+.grid2{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+@media(max-width:720px){.grid2{grid-template-columns:1fr}}
+
+.sp-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-card);padding:20px;display:flex;flex-direction:column;gap:11px;transition:border-color .15s}
+.sp-card:hover{border-color:#c8c5bb}
+.sp-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.co-name{font-size:16px;font-weight:600;line-height:1.2}
+.co-domain{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);margin-top:2px}
+.cat-tag{font-size:11px;font-weight:500;padding:3px 9px;border-radius:var(--r-pill);background:var(--bar-bg);color:var(--muted);white-space:nowrap;flex-shrink:0}
+.sp-desc{font-size:13px;color:var(--muted);line-height:1.55}
+.sp-label{font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:3px}
+.sp-usage{font-size:13px;color:var(--text);line-height:1.55}
+.sp-stat{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);background:var(--bar-bg);padding:8px 12px;border-radius:6px;margin-top:auto;line-height:1.6}
+
+/* ── footer ── */
+.footer{border-top:1px solid var(--border);padding:20px 0 32px;margin-top:8px}
+.footer p{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted)}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="pw">
+    <a href="index.html" class="back">← developer tool usage dashboard</a>
+    <h1 class="page-title">What developers build with Composio</h1>
+    <nav class="tabs">
+      <button class="tab-btn active" data-tab="clusters">Use case clusters</button>
+      <button class="tab-btn" data-tab="quadrant">Volume vs breadth</button>
+      <button class="tab-btn" data-tab="spotlights">Growth customer spotlights</button>
+    </nav>
+  </div>
+</div>
+
+<div class="pw">
+
+  <!-- ══════════════════════════════════════════
+       TAB 1 — USE CASE CLUSTERS
+  ══════════════════════════════════════════ -->
+  <div class="tc active" id="tc-clusters">
+    <div class="cards-grid">
+
+      <div class="uc-card">
+        <div class="card-top">
+          <div class="card-num">41K+</div>
+          <span class="badge badge-v">✅ Validated</span>
+        </div>
+        <div class="card-title">Composio as infrastructure</div>
+        <div class="card-desc">Orchestration tools used by more projects than Gmail — developers building agents around Composio's runtime, not just connectors.</div>
+        <div class="chips">
+          <span class="chip">composio_search_tools</span>
+          <span class="chip">composio_multi_execute_tool</span>
+          <span class="chip">composio_manage_connections</span>
+        </div>
+      </div>
+
+      <div class="uc-card">
+        <div class="card-top">
+          <div class="card-num">13K+</div>
+          <span class="badge badge-v">✅ Validated</span>
+        </div>
+        <div class="card-title">Email agents</div>
+        <div class="card-desc">Gmail dominates — more calls than the next 5 toolkits combined.</div>
+        <div class="chips">
+          <span class="chip">gmail_fetch_emails</span>
+          <span class="chip">gmail_send_email</span>
+          <span class="chip">gmail_create_draft</span>
+          <span class="chip">outlook_query_emails</span>
+        </div>
+      </div>
+
+      <div class="uc-card">
+        <div class="card-top">
+          <div class="card-num">4.7K+</div>
+          <span class="badge badge-v">✅ Validated</span>
+        </div>
+        <div class="card-title">Calendar agents</div>
+        <div class="card-desc">Almost always paired with email. Scheduling, free-slot finding, and event creation.</div>
+        <div class="chips">
+          <span class="chip">googlecalendar_events_list</span>
+          <span class="chip">googlecalendar_create_event</span>
+          <span class="chip">googlecalendar_find_free_slots</span>
+        </div>
+      </div>
+
+      <div class="uc-card">
+        <div class="card-top">
+          <div class="card-num">3.7K+</div>
+          <span class="badge badge-v">✅ Validated</span>
+        </div>
+        <div class="card-title">Productivity agents</div>
+        <div class="card-desc">Sheets, Drive, Notion, Docs used as the knowledge and memory layer.</div>
+        <div class="chips">
+          <span class="chip">googlesheets_batch_get</span>
+          <span class="chip">googledrive_find_file</span>
+          <span class="chip">notion_search</span>
+          <span class="chip">googledocs_get_document</span>
+        </div>
+      </div>
+
+      <div class="uc-card">
+        <div class="card-top">
+          <div class="card-num">2.4K+</div>
+          <span class="badge badge-e">🟡 Emerging</span>
+        </div>
+        <div class="card-title">LinkedIn agents</div>
+        <div class="card-desc">Connected but barely used — 55 calls/project. Depth gap, not a demand gap.</div>
+        <div class="chips">
+          <span class="chip">linkedin_get_my_info</span>
+          <span class="chip">linkedin_create_post</span>
+        </div>
+      </div>
+
+      <div class="uc-card">
+        <div class="card-top">
+          <div class="card-num">1.6K+</div>
+          <span class="badge badge-v">✅ Validated</span>
+        </div>
+        <div class="card-title">Coding agents</div>
+        <div class="card-desc">Reading repos and committing code — underrepresented in Composio's public narrative.</div>
+        <div class="chips">
+          <span class="chip">github_get_repo_content</span>
+          <span class="chip">github_list_pull_requests</span>
+          <span class="chip">github_commit_multiple_files</span>
+        </div>
+      </div>
+
+      <div class="uc-card">
+        <div class="card-top">
+          <div class="card-num">800+</div>
+          <span class="badge badge-e">🟡 Emerging</span>
+        </div>
+        <div class="card-title">Social media agents</div>
+        <div class="card-desc">Twitter monitoring, Instagram management, Reddit — cross-platform signal gathering.</div>
+        <div class="chips">
+          <span class="chip">twitter_recent_search</span>
+          <span class="chip">instagram_list_messages</span>
+          <span class="chip">reddit_search</span>
+        </div>
+      </div>
+
+      <div class="uc-card">
+        <div class="card-top">
+          <div class="card-num">540+</div>
+          <span class="badge badge-v">✅ Validated</span>
+        </div>
+        <div class="card-title">CRM &amp; customer support</div>
+        <div class="card-desc">HubSpot, Zendesk, Salesforce, Intercom all active. Revenue-adjacent workflows gaining traction.</div>
+        <div class="chips">
+          <span class="chip">hubspot_search_contacts</span>
+          <span class="chip">salesforce_soql</span>
+          <span class="chip">zendesk_list_tickets</span>
+        </div>
+      </div>
+
+      <div class="uc-card">
+        <div class="card-top">
+          <div class="card-num">190+</div>
+          <span class="badge badge-e">🟡 Emerging</span>
+        </div>
+        <div class="card-title">Finance agents</div>
+        <div class="card-desc">Stripe, Shopify, QuickBooks — not in anyone's pitch deck yet, but the projects are live.</div>
+        <div class="chips">
+          <span class="chip">stripe_list_charges</span>
+          <span class="chip">shopify_graphql</span>
+          <span class="chip">quickbooks_proxy</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       TAB 2 — QUADRANT CHART
+  ══════════════════════════════════════════ -->
+  <div class="tc" id="tc-quadrant">
+    <div class="chart-hdr">
+      <h2>Volume vs breadth — 180-day window</h2>
+      <p>Both axes log scale &nbsp;·&nbsp; Bubble area proportional to call volume &nbsp;·&nbsp; Hover any bubble to explore</p>
+    </div>
+    <div class="chart-wrap">
+      <canvas id="qc"></canvas>
+      <div class="tt" id="tt">
+        <div class="tt-name" id="tt-name"></div>
+        <div class="tt-stat" id="tt-stat"></div>
+        <div class="tt-note" id="tt-note" style="display:none"></div>
+      </div>
+    </div>
+    <div class="legend" id="legend"></div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       TAB 3 — GROWTH CUSTOMER SPOTLIGHTS
+  ══════════════════════════════════════════ -->
+  <div class="tc" id="tc-spotlights">
+    <div class="grid2">
+
+      <div class="sp-card">
+        <div class="sp-top">
+          <div><div class="co-name">Littlebird</div><div class="co-domain">littlebird.ai</div></div>
+          <span class="cat-tag">Personal AI agent</span>
+        </div>
+        <div class="sp-desc">AI desktop assistant that reads your screen in real time to build memory of your workday.</div>
+        <div>
+          <div class="sp-label">How they use Composio</div>
+          <div class="sp-usage">Continuously syncs Google Calendar and Outlook (20.2M calls), reads and drafts Gmail, and retrieves Drive files.</div>
+        </div>
+        <div class="sp-stat">20.2M calls · 180 days · heaviest Growth user by volume</div>
+      </div>
+
+      <div class="sp-card">
+        <div class="sp-top">
+          <div><div class="co-name">Memorae</div><div class="co-domain">memorae.ai</div></div>
+          <span class="cat-tag">Personal AI agent</span>
+        </div>
+        <div class="sp-desc">AI assistant that lives inside WhatsApp and Telegram, entirely trigger-driven.</div>
+        <div>
+          <div class="sp-label">How they use Composio</div>
+          <div class="sp-usage">Uses Composio's trigger layer — fires on every incoming email automatically. 68.8M trigger events since December.</div>
+        </div>
+        <div class="sp-stat">54M tool calls + 68.8M trigger events · #1 by daily trigger volume</div>
+      </div>
+
+      <div class="sp-card">
+        <div class="sp-top">
+          <div><div class="co-name">Wingman / Emergent</div><div class="co-domain">emergent.sh</div></div>
+          <span class="cat-tag">Personal AI agent</span>
+        </div>
+        <div class="sp-desc">Personal AI agent via WhatsApp, Telegram, iMessage managing email, calendar, social, and 50+ tools.</div>
+        <div>
+          <div class="sp-label">How they use Composio</div>
+          <div class="sp-usage">Spans 50+ integrations — email triage, calendar management, GitHub commits, social publishing, ads management.</div>
+        </div>
+        <div class="sp-stat">1.9M calls · WingmanProd · broadest integration footprint in dataset</div>
+      </div>
+
+      <div class="sp-card">
+        <div class="sp-top">
+          <div><div class="co-name">Vellum</div><div class="co-domain">vellum.ai</div></div>
+          <span class="cat-tag">Personal AI agent</span>
+        </div>
+        <div class="sp-desc">Personal AI assistant with persistent memory that proactively researches and monitors without being asked.</div>
+        <div>
+          <div class="sp-label">How they use Composio</div>
+          <div class="sp-usage">Ambient web research via 10.5M Tavily searches and Twitter monitoring (3.7M calls).</div>
+        </div>
+        <div class="sp-stat">16.7M calls · 85% of calls are search and social monitoring</div>
+      </div>
+
+      <div class="sp-card">
+        <div class="sp-top">
+          <div><div class="co-name">Runner</div><div class="co-domain">runner.now</div></div>
+          <span class="cat-tag">Personal AI agent</span>
+        </div>
+        <div class="sp-desc">Desktop AI assistant for Mac connecting to Gmail, Calendar, Slack, Drive, and GitHub.</div>
+        <div>
+          <div class="sp-label">How they use Composio</div>
+          <div class="sp-usage">Uses Composio as an authentication layer — routing raw API calls for credential management across all integrations.</div>
+        </div>
+        <div class="sp-stat">3.2M calls · Orchestrator · proxy-dominant pattern</div>
+      </div>
+
+      <div class="sp-card">
+        <div class="sp-top">
+          <div><div class="co-name">ImplementAI</div><div class="co-domain">implementai.io</div></div>
+          <span class="cat-tag">Business AI agent</span>
+        </div>
+        <div class="sp-desc">British company deploying managed digital worker teams for SMEs.</div>
+        <div>
+          <div class="sp-label">How they use Composio</div>
+          <div class="sp-usage">Uses Composio as orchestration infrastructure — agents dynamically discover and chain integrations at runtime using meta-tools.</div>
+        </div>
+        <div class="sp-stat">1.97M calls · most sophisticated orchestration pattern in dataset</div>
+      </div>
+
+      <div class="sp-card">
+        <div class="sp-top">
+          <div><div class="co-name">Browser Use</div><div class="co-domain">browser-use.com</div></div>
+          <span class="cat-tag">Platform</span>
+        </div>
+        <div class="sp-desc">Open-source AI browser automation library + cloud platform. 40K GitHub stars, $17M Series A.</div>
+        <div>
+          <div class="sp-label">How they use Composio</div>
+          <div class="sp-usage">Dual relationship — Composio pays Browser Use for browser infra; Browser Use uses Composio in BU.app.</div>
+        </div>
+        <div class="sp-stat">1.06M calls · vendor + customer relationship</div>
+      </div>
+
+      <div class="sp-card">
+        <div class="sp-top">
+          <div><div class="co-name">Mintlify</div><div class="co-domain">mintlify.com</div></div>
+          <span class="cat-tag">Platform · Pre-launch</span>
+        </div>
+        <div class="sp-desc">AI knowledge infrastructure for 20,000+ companies. $45M Series B, $500M valuation.</div>
+        <div>
+          <div class="sp-label">How they use Composio</div>
+          <div class="sp-usage">Building white-label embedded integrations for 20K customers — needs self-hosting and HITL support before launch.</div>
+        </div>
+        <div class="sp-stat">Pre-launch · highest potential scale in dataset when live</div>
+      </div>
+
+    </div>
+  </div>
+
+</div><!-- /pw -->
+
+<div class="pw">
+  <footer class="footer">
+    <p>Composio internal &nbsp;·&nbsp; developer accounts &nbsp;·&nbsp; tool_execution_logs &nbsp;·&nbsp; 180-day window</p>
+  </footer>
+</div>
+
+<script>
+// ── Tab switching ─────────────────────────────────────────────────────────────
+const btns = document.querySelectorAll('.tab-btn');
+const tcs  = document.querySelectorAll('.tc');
+
+btns.forEach(btn => {
+  btn.addEventListener('click', () => {
+    const id = btn.dataset.tab;
+    btns.forEach(b => b.classList.remove('active'));
+    tcs.forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tc-' + id).classList.add('active');
+    if (id === 'quadrant') setTimeout(drawChart, 30);
+  });
+});
+
+// ── Quadrant chart data ───────────────────────────────────────────────────────
+const TK = [
+  { name:'Gmail',                x:13804, y:60,    color:'#EA4335', key:'gmail' },
+  { name:'Google Calendar',      x:4771,  y:43,    color:'#1A73E8', key:'gcal', short:'G.Calendar' },
+  { name:'Composio',             x:41228, y:21,    color:'#7F77DD', key:'composio', note:'Orchestration meta-tools' },
+  { name:'Slack',                x:2019,  y:10,    color:'#4A154B', key:'slack' },
+  { name:'Google Super',         x:59,    y:24,    color:'#0F6E56', key:'gsuper', short:'G.Super', note:'~1 customer — highly concentrated' },
+  { name:'Microsoft Teams',      x:127,   y:19,    color:'#5059C9', key:'msteams', short:'MS Teams', note:'Concentrated customer base' },
+  { name:'Instagram',            x:629,   y:12,    color:'#E1306C', key:'instagram' },
+  { name:'Airtable',             x:492,   y:6,     color:'#18BFFF', key:'airtable' },
+  { name:'Tavily',               x:310,   y:5,     color:'#BA7517', key:'tavily' },
+  { name:'Google Drive',         x:4588,  y:2.4,   color:'#4285F4', key:'gdrive', short:'G.Drive' },
+  { name:'Google Sheets',        x:3757,  y:3,     color:'#34A853', key:'gsheets', short:'G.Sheets' },
+  { name:'Outlook',              x:1659,  y:4,     color:'#0078D4', key:'outlook' },
+  { name:'GitHub',               x:1608,  y:1.2,   color:'#24292E', key:'github' },
+  { name:'HubSpot',              x:540,   y:1.4,   color:'#FF7A59', key:'hubspot' },
+  { name:'Notion',               x:1364,  y:0.893, color:'#191919', key:'notion' },
+  { name:'LinkedIn',             x:2462,  y:0.089, color:'#0A66C2', key:'linkedin' },
+  { name:'Google Docs',          x:2538,  y:0.194, color:'#1A73E8', key:'gdocs', short:'G.Docs' },
+  { name:'Twitter / X',          x:1076,  y:3.2,   color:'#1DA1F2', key:'twitter', short:'Twitter' },
+  { name:'Reddit',               x:231,   y:3.2,   color:'#FF4500', key:'reddit' },
+  { name:'Stripe',               x:241,   y:1.1,   color:'#6772E5', key:'stripe' },
+  { name:'Supabase',             x:712,   y:0.361, color:'#3ECF8E', key:'supabase' },
+];
+
+// Build legend
+const legendEl = document.getElementById('legend');
+TK.forEach(t => {
+  const d = document.createElement('div');
+  d.className = 'leg-item';
+  d.innerHTML = `<div class="leg-dot" style="background:${t.color}"></div><span>${t.short || t.name}</span>`;
+  legendEl.appendChild(d);
+});
+
+// Tooltip elements
+const ttEl   = document.getElementById('tt');
+const ttName = document.getElementById('tt-name');
+const ttStat = document.getElementById('tt-stat');
+const ttNote = document.getElementById('tt-note');
+
+const MARGIN = { top:52, right:36, bottom:66, left:82 };
+const QX = 3000;   // projects divider
+const QY = 10;     // million calls divider
+
+// log10 scale bounds
+const X_LOG_MIN = Math.log10(40);
+const X_LOG_MAX = Math.log10(60000);
+const Y_LOG_MIN = Math.log10(0.04);
+const Y_LOG_MAX = Math.log10(120);
+
+let hitData = []; // {cx, cy, r, tk}
+
+function fmtCalls(v) {
+  if (v >= 1) return v % 1 === 0 ? v + 'M' : v.toFixed(1) + 'M';
+  return Math.round(v * 1000) + 'K';
+}
+function fmtProj(v) {
+  return v >= 1000 ? (v/1000).toFixed(1).replace(/\.0$/,'') + 'K' : v.toString();
+}
+
+function drawChart() {
+  const canvas = document.getElementById('qc');
+  const wrap   = canvas.parentElement;
+  const dpr    = window.devicePixelRatio || 1;
+  const W      = wrap.clientWidth - 44;
+  const H      = Math.max(680, Math.round(window.innerHeight * 0.74));
+  if (W <= 0) return;
+
+  canvas.width        = Math.round(W * dpr);
+  canvas.height       = Math.round(H * dpr);
+  canvas.style.width  = W + 'px';
+  canvas.style.height = H + 'px';
+
+  const ctx   = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+
+  const pw = W - MARGIN.left - MARGIN.right;
+  const ph = H - MARGIN.top  - MARGIN.bottom;
+
+  function xC(projects) {
+    const t = (Math.log10(projects) - X_LOG_MIN) / (X_LOG_MAX - X_LOG_MIN);
+    return MARGIN.left + t * pw;
+  }
+  function yC(calls) {
+    const t = 1 - (Math.log10(calls) - Y_LOG_MIN) / (Y_LOG_MAX - Y_LOG_MIN);
+    return MARGIN.top + t * ph;
+  }
+  function bubbleR(calls) {
+    return Math.max(7, 46 * Math.sqrt(calls / 60));
+  }
+
+  const qxC = xC(QX);
+  const qyC = yC(QY);
+
+  // ── Quadrant background fills ──────────────────────────────────────────────
+  // bottom-left: niche
+  ctx.fillStyle = '#fafaf8';
+  ctx.fillRect(MARGIN.left, qyC, qxC - MARGIN.left, ph - (qyC - MARGIN.top));
+  // top-left: concentrated
+  ctx.fillStyle = '#fffdf8';
+  ctx.fillRect(MARGIN.left, MARGIN.top, qxC - MARGIN.left, qyC - MARGIN.top);
+  // bottom-right: emerging
+  ctx.fillStyle = '#f8fbff';
+  ctx.fillRect(qxC, qyC, pw - (qxC - MARGIN.left), ph - (qyC - MARGIN.top));
+  // top-right: winning
+  ctx.fillStyle = '#f6fdf9';
+  ctx.fillRect(qxC, MARGIN.top, pw - (qxC - MARGIN.left), qyC - MARGIN.top);
+
+  // ── Quadrant dividers ──────────────────────────────────────────────────────
+  ctx.save();
+  ctx.strokeStyle = '#d8d5cc';
+  ctx.lineWidth   = 1;
+  ctx.setLineDash([5, 5]);
+  // vertical
+  ctx.beginPath(); ctx.moveTo(qxC, MARGIN.top); ctx.lineTo(qxC, MARGIN.top + ph); ctx.stroke();
+  // horizontal
+  ctx.beginPath(); ctx.moveTo(MARGIN.left, qyC); ctx.lineTo(MARGIN.left + pw, qyC); ctx.stroke();
+  ctx.restore();
+
+  // ── Quadrant labels ────────────────────────────────────────────────────────
+  const qlPad = 12;
+  ctx.font     = '500 13px "DM Sans",sans-serif';
+  ctx.fillStyle = '#a09d95';
+
+  // top-left
+  ctx.textAlign = 'left';
+  ctx.fillText('⚠️ Concentrated', MARGIN.left + qlPad, MARGIN.top + 22);
+  ctx.font = '400 11px "DM Sans",sans-serif';
+  ctx.fillText('high volume, few projects', MARGIN.left + qlPad, MARGIN.top + 38);
+
+  // top-right
+  ctx.font = '500 13px "DM Sans",sans-serif';
+  ctx.textAlign = 'right';
+  ctx.fillText('✅ Winning', MARGIN.left + pw - qlPad, MARGIN.top + 22);
+  ctx.font = '400 11px "DM Sans",sans-serif';
+  ctx.fillText('high volume, many projects', MARGIN.left + pw - qlPad, MARGIN.top + 38);
+
+  // bottom-left
+  ctx.font = '500 12px "DM Sans",sans-serif';
+  ctx.textAlign = 'left';
+  ctx.fillText('Niche / early', MARGIN.left + qlPad, MARGIN.top + ph - 12);
+
+  // bottom-right
+  ctx.textAlign = 'right';
+  ctx.fillText('🟡 Emerging / underused', MARGIN.left + pw - qlPad, MARGIN.top + ph - 12);
+
+  // ── Axes ───────────────────────────────────────────────────────────────────
+  ctx.strokeStyle = '#c5c2b8';
+  ctx.lineWidth   = 1;
+  ctx.setLineDash([]);
+  ctx.beginPath(); ctx.moveTo(MARGIN.left, MARGIN.top); ctx.lineTo(MARGIN.left, MARGIN.top + ph); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(MARGIN.left, MARGIN.top + ph); ctx.lineTo(MARGIN.left + pw, MARGIN.top + ph); ctx.stroke();
+
+  // X ticks
+  ctx.font      = '400 11px "DM Mono",monospace';
+  ctx.fillStyle = '#9e9b93';
+  ctx.textAlign = 'center';
+  [100, 300, 1000, 3000, 10000, 40000].forEach(v => {
+    const cx = xC(v);
+    if (cx <= MARGIN.left || cx >= MARGIN.left + pw) return;
+    ctx.strokeStyle = '#d8d5cc'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(cx, MARGIN.top + ph); ctx.lineTo(cx, MARGIN.top + ph + 5); ctx.stroke();
+    ctx.fillStyle = '#9e9b93';
+    ctx.fillText(fmtProj(v), cx, MARGIN.top + ph + 18);
+  });
+
+  // Y ticks
+  ctx.textAlign = 'right';
+  [0.1, 0.3, 1, 3, 10, 30, 60].forEach(v => {
+    const cy = yC(v);
+    if (cy <= MARGIN.top || cy >= MARGIN.top + ph) return;
+    ctx.strokeStyle = '#d8d5cc'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(MARGIN.left, cy); ctx.lineTo(MARGIN.left - 5, cy); ctx.stroke();
+    ctx.fillStyle = '#9e9b93';
+    ctx.fillText(fmtCalls(v), MARGIN.left - 9, cy + 4);
+  });
+
+  // Axis titles
+  ctx.save();
+  ctx.translate(16, MARGIN.top + ph / 2);
+  ctx.rotate(-Math.PI / 2);
+  ctx.textAlign    = 'center';
+  ctx.font         = '500 12px "DM Sans",sans-serif';
+  ctx.fillStyle    = '#7a7870';
+  ctx.fillText('Call volume (total calls, 180 days)', 0, 0);
+  ctx.restore();
+
+  ctx.font      = '500 12px "DM Sans",sans-serif';
+  ctx.fillStyle = '#7a7870';
+  ctx.textAlign = 'center';
+  ctx.fillText('Project breadth (developer projects using this toolkit)', MARGIN.left + pw / 2, H - 14);
+
+  // ── Bubbles ────────────────────────────────────────────────────────────────
+  hitData = [];
+  const sorted = [...TK].sort((a, b) => b.y - a.y); // big first (drawn behind)
+
+  // pass 1: fills
+  sorted.forEach(t => {
+    const cx = xC(t.x), cy = yC(t.y), r = bubbleR(t.y);
+    hitData.push({ cx, cy, r, t });
+    ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2);
+    ctx.fillStyle = t.color + 'bb';
+    ctx.fill();
+  });
+
+  // pass 2: strokes
+  sorted.forEach(t => {
+    const cx = xC(t.x), cy = yC(t.y), r = bubbleR(t.y);
+    ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2);
+    ctx.strokeStyle = t.color;
+    ctx.lineWidth   = 1.5;
+    ctx.stroke();
+  });
+
+  // pass 3: labels
+  // always-label set
+  const always = new Set(['gmail','composio','gcal','gsuper','msteams','slack','linkedin','gdocs']);
+  sorted.forEach(t => {
+    const cx = xC(t.x), cy = yC(t.y), r = bubbleR(t.y);
+    const lbl = t.short || t.name;
+    if (r < 14 && !always.has(t.key)) return;
+    const fs  = r > 22 ? 12 : 10;
+    ctx.font  = `500 ${fs}px "DM Sans",sans-serif`;
+    const tw  = ctx.measureText(lbl).width;
+    // place below bubble, with small background rect
+    const lx  = cx;
+    const ly  = cy + r + 14;
+    ctx.fillStyle = 'rgba(247,246,242,0.88)';
+    ctx.fillRect(lx - tw/2 - 3, ly - fs - 1, tw + 6, fs + 4);
+    ctx.fillStyle = '#1a1916';
+    ctx.textAlign = 'center';
+    ctx.fillText(lbl, lx, ly);
+  });
+}
+
+// ── Tooltip hit testing ───────────────────────────────────────────────────────
+document.getElementById('qc').addEventListener('mousemove', e => {
+  const canvas = document.getElementById('qc');
+  const rect   = canvas.getBoundingClientRect();
+  const mx     = e.clientX - rect.left;
+  const my     = e.clientY - rect.top;
+
+  // check smallest (topmost) first
+  let hit = null;
+  for (let i = hitData.length - 1; i >= 0; i--) {
+    const d    = hitData[i];
+    const dist = Math.hypot(mx - d.cx, my - d.cy);
+    if (dist <= d.r + 3) { hit = d; break; }
+  }
+
+  if (hit) {
+    const t = hit.t;
+    ttName.textContent = t.name;
+    ttStat.innerHTML   = `${fmtCalls(t.y)} calls&nbsp;&nbsp;·&nbsp;&nbsp;${fmtProj(t.x)} projects`;
+    if (t.note) { ttNote.textContent = t.note; ttNote.style.display = 'block'; }
+    else        { ttNote.style.display = 'none'; }
+    ttEl.classList.add('vis');
+
+    const ttW = ttEl.offsetWidth  || 180;
+    const ttH = ttEl.offsetHeight || 80;
+    let tx = e.clientX + 15;
+    let ty = e.clientY - 45;
+    if (tx + ttW > window.innerWidth  - 12) tx = e.clientX - ttW - 15;
+    if (ty < 12)                            ty = e.clientY + 15;
+    if (ty + ttH > window.innerHeight - 12) ty = window.innerHeight - ttH - 12;
+    ttEl.style.left = tx + 'px';
+    ttEl.style.top  = ty + 'px';
+  } else {
+    ttEl.classList.remove('vis');
+  }
+});
+
+document.getElementById('qc').addEventListener('mouseleave', () => {
+  ttEl.classList.remove('vis');
+});
+
+// Redraw on resize
+let rzTimer;
+window.addEventListener('resize', () => {
+  clearTimeout(rzTimer);
+  rzTimer = setTimeout(() => {
+    if (document.getElementById('tc-quadrant').classList.contains('active')) drawChart();
+  }, 120);
+});
+</script>
+</body>
+</html>
